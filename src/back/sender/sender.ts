@@ -33,7 +33,7 @@ class Sender {
     this.sendMessage(messageData);
   };
 
-  private sendMessage = (message: IResponse, ws?: WebSocket) => {
+  sendMessage = (message: IResponse, ws?: WebSocket) => {
     const messageRaw = createRaw(message);
     if (ws) {
       ws.send(messageRaw);

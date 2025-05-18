@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import { randomUUID } from "node:crypto";
 import type { Room, Winner } from "../types";
 
 type EventNames = "update_room" | "update_winners";
@@ -43,6 +44,13 @@ class GameDB extends EventEmitter {
       this.winners.set(name, { name, wins: 0 });
     }
   };
+
+  createRoom(name: string) {
+    const roomId = randomUUID();
+    const roomUsers: Room["roomUsers"] = [{ name, index: 0 }];
+    this.rooms.set(roomId, { roomId, roomUsers: roomUsers });
+    this.event("update_room");
+  }
 }
 
 const gameDB = new GameDB();

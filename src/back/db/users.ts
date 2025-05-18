@@ -34,6 +34,8 @@ class UsersDB extends EventEmitter {
     return this.users.get(name)?.password === pass;
   };
 
+  getName = (ws: WebSocket) => this.authorizedUsers.get(ws);
+
   authorizeUser = ({ name, password }: User, ws: WebSocket) => {
     if (this.authorizedUsers.has(ws)) {
       return true;

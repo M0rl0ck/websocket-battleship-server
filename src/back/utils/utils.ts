@@ -4,7 +4,9 @@ import type { RawData } from "ws";
 const parseRaw = (raw: RawData) => {
   console.log(raw.toString());
   const messageData = JSON.parse(raw.toString());
-  messageData.data = JSON.parse(messageData.data);
+  messageData.data = messageData.data
+    ? JSON.parse(messageData.data)
+    : messageData.data;
   return messageData as IRequest;
 };
 

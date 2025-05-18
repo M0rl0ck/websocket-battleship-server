@@ -4,7 +4,6 @@ import { usersDB, gameDB } from "../db";
 import { sender, type Sender } from "../sender";
 import type { LoginRequest, LoginResponse } from "../types";
 import type { WebSocket } from "ws";
-import { createRaw } from "../utils/utils";
 
 class Controller extends EventEmitter {
   private userDB: UsersDB;
@@ -36,11 +35,24 @@ class Controller extends EventEmitter {
       newMessageData.data.errorText = "Wrong name or password";
     }
 
-    ws.send(createRaw(newMessageData));
+    this.sender.sendMessage(newMessageData, ws);
     if (result) {
       this.sender.updateWinners();
       this.sender.updateRooms(ws);
     }
+  };
+
+  checkIsAuthorized = (ws: WebSocket) => {
+    return this.userDB.isAuthorized(ws);
+  };
+
+  createRoom = (ws: WebSocket) => {
+    const name = this.userDB.getName(ws);
+    if (!name) {
+      return;
+    }
+    this.gameDB.createRoom(name);
+    this.sender.updateRooms();
   };
 }
 
