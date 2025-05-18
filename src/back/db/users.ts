@@ -1,15 +1,24 @@
 import { createHash } from "node:crypto";
+import { EventEmitter } from "node:events";
 import type { WebSocket } from "ws";
+import type { User } from "../types";
 
-type User = {
-  name: string;
-  password: string;
-};
+type EventNames = "add_user";
 
-class UserDB {
+class UsersDB extends EventEmitter {
   private users: Map<string, User>;
   private authorizedUsers: Map<WebSocket, string>;
+
+  emit(event: EventNames, name: string): boolean {
+    return super.emit(event, name);
+  }
+
+  on(event: EventNames, listener: (name: string) => void) {
+    return super.on(event, listener);
+  }
+
   constructor() {
+    super();
     this.users = new Map();
     this.authorizedUsers = new Map();
   }
@@ -18,6 +27,7 @@ class UserDB {
     const pass = createHash("sha256").update(password).digest("hex");
     const newUser = { name, password: pass };
     this.users.set(name, newUser);
+    this.emit("add_user", name);
   };
   private checkUser = ({ name, password }: User) => {
     const pass = createHash("sha256").update(password).digest("hex");
@@ -52,6 +62,7 @@ class UserDB {
   getAuthorized = () => [...this.authorizedUsers.keys()];
 }
 
-const usersDB = new UserDB();
+const usersDB = new UsersDB();
 
 export { usersDB };
+export type { UsersDB };

@@ -13,4 +13,9 @@ type Winner = {
   wins: number;
 };
 
-export { Room, Winner };
+type User = {
+  name: string;
+  password: string;
+};
+
+export { Room, Winner, User };

@@ -81,4 +81,4 @@ export type IRequest =
   | Attack
   | RandomAttack;
 
-export { IRequestData };
+export { IRequestData, LoginRequest };
