@@ -1,4 +1,4 @@
-export type { IRequest } from "./requestMessagesType";
+export type { IRequest, IRequestData } from "./requestMessagesType";
 export type {
   LoginResponse,
   UpdateWinners,
@@ -10,3 +10,5 @@ export type {
   FinishGame,
   IResponse,
 } from "./responseMessagesTypes";
+
+export type { Room, Winner } from "./types";

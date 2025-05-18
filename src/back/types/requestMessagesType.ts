@@ -67,6 +67,12 @@ type RandomAttack = {
   id: 0;
 };
 
+type IRequestData = {
+  type: string;
+  data: string;
+  id: 0;
+};
+
 export type IRequest =
   | LoginRequest
   | CreateRoom
@@ -74,3 +80,5 @@ export type IRequest =
   | AddShips
   | Attack
   | RandomAttack;
+
+export { IRequestData };

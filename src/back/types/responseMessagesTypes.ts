@@ -1,3 +1,5 @@
+import type { Room, Winner } from "./types";
+
 type LoginResponse = {
   type: "reg";
   data: {
@@ -11,12 +13,7 @@ type LoginResponse = {
 
 type UpdateWinners = {
   type: "update_winners";
-  data: [
-    {
-      name: string;
-      wins: number;
-    },
-  ];
+  data: Winner[];
   id: 0;
 };
 
@@ -33,17 +30,7 @@ type CreateGame = {
 
 type UpdateRoom = {
   type: "update_room";
-  data: [
-    {
-      roomId: number | string;
-      roomUsers: [
-        {
-          name: string;
-          index: number | string;
-        },
-      ];
-    },
-  ];
+  data: Room[];
   id: 0;
 };
 

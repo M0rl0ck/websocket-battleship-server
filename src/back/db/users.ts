@@ -46,6 +46,10 @@ class UserDB {
     console.log(`User ${this.authorizedUsers.get(ws)} disconnected`);
     this.authorizedUsers.delete(ws);
   };
+
+  isAuthorized = (ws: WebSocket) => this.authorizedUsers.has(ws);
+
+  getAuthorized = () => [...this.authorizedUsers.keys()];
 }
 
 const usersDB = new UserDB();
