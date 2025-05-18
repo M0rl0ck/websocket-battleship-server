@@ -1,21 +1,23 @@
 import { EventEmitter } from "node:events";
-import type { UsersDB, GameDB } from "../db";
-import { usersDB, gameDB } from "../db";
+import type { UsersDB, RoomsDB } from "../db";
+import { usersDB, roomsDB } from "../db";
+import { game, type Game } from "../game";
 import { sender, type Sender } from "../sender";
 import type { LoginRequest, LoginResponse } from "../types";
 import type { WebSocket } from "ws";
 
 class Controller extends EventEmitter {
   private userDB: UsersDB;
-  private gameDB: GameDB;
+  private roomsDB: RoomsDB;
   private sender: Sender;
-  constructor(usersDB: UsersDB, gameDB: GameDB, sender: Sender) {
+  private game: Game;
+  constructor(usersDB: UsersDB, roomsDB: RoomsDB, sender: Sender, game: Game) {
     super();
     this.userDB = usersDB;
-    this.gameDB = gameDB;
+    this.roomsDB = roomsDB;
     this.sender = sender;
-    this.userDB.on("add_user", this.gameDB.addWinner);
-    this.gameDB.on("update_winners", this.sender.updateWinners);
+    this.game = game;
+    this.userDB.on("add_user", this.roomsDB.addWinner);
   }
 
   authorizeUser = (messageData: LoginRequest, ws: WebSocket) => {
@@ -51,11 +53,36 @@ class Controller extends EventEmitter {
     if (!name) {
       return;
     }
-    this.gameDB.createRoom(name);
+    this.roomsDB.createRoom(name);
     this.sender.updateRooms();
+  };
+
+  addUserToRoom = (roomId: string, ws: WebSocket) => {
+    const name = this.userDB.getName(ws);
+    if (!name) {
+      return;
+    }
+    const room = this.roomsDB.getRoom(roomId);
+    if (room && room.roomUsers[0].name !== name) {
+      const player1 = room.roomUsers[0].name;
+      this.roomsDB.deleteRoom(roomId);
+      this.sender.updateRooms();
+      this.createGame(player1, name);
+    }
+  };
+
+  private createGame = (player1: string, player2: string) => {
+    const idGame = this.game.createGame(player1, player2);
+    const sessionPlayer1 = this.userDB.getSessionByName(player1);
+    const sessionPlayer2 = this.userDB.getSessionByName(player2);
+    if (!sessionPlayer1 || !sessionPlayer2) {
+      return;
+    }
+    this.sender.createGame(idGame, player1, sessionPlayer1);
+    this.sender.createGame(idGame, player2, sessionPlayer2);
   };
 }
 
-const controller = new Controller(usersDB, gameDB, sender);
+const controller = new Controller(usersDB, roomsDB, sender, game);
 
 export { controller };

@@ -20,8 +20,11 @@ const privateHandleMessage = (message: IRequest, ws: WebSocket) => {
   switch (message.type) {
     case "add_ships":
       break;
-    case "add_user_to_room":
+    case "add_user_to_room": {
+      controller.addUserToRoom(message.data.indexRoom.toString(), ws);
       break;
+    }
+
     case "create_room": {
       controller.createRoom(ws);
       break;

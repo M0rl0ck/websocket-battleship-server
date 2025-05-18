@@ -62,6 +62,13 @@ class UsersDB extends EventEmitter {
   isAuthorized = (ws: WebSocket) => this.authorizedUsers.has(ws);
 
   getAuthorized = () => [...this.authorizedUsers.keys()];
+
+  getSessionByName = (name: string) => {
+    const session = [...this.authorizedUsers.entries()].find(
+      ([, user]) => user === name
+    );
+    return session?.[0];
+  };
 }
 
 const usersDB = new UsersDB();

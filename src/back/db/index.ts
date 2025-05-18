@@ -1,2 +1,2 @@
 export { usersDB, type UsersDB } from "./users";
-export { gameDB, type GameDB } from "./gameDB";
+export { roomsDB, type RoomsDB } from "./roomsDB";

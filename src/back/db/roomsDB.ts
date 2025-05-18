@@ -4,15 +4,17 @@ import type { Room, Winner } from "../types";
 
 type EventNames = "update_room" | "update_winners";
 
-class GameDB extends EventEmitter {
+type Listener = ((name: string) => void) | (() => void);
+
+class RoomsDB extends EventEmitter {
   private rooms: Map<string, Room>;
   private winners: Map<string, Winner> = new Map();
 
-  event(event: EventNames) {
+  emit(event: EventNames) {
     return super.emit(event);
   }
 
-  on(event: EventNames, listener: (name: string) => void) {
+  on(event: EventNames, listener: Listener) {
     return super.on(event, listener);
   }
   constructor() {
@@ -31,6 +33,10 @@ class GameDB extends EventEmitter {
     return rooms;
   }
 
+  getRoom(roomId: string) {
+    return this.rooms.get(roomId);
+  }
+
   getWinners() {
     const winners: Winner[] = [];
     for (const winner of this.winners.values()) {
@@ -45,14 +51,29 @@ class GameDB extends EventEmitter {
     }
   };
 
+  checkIsUserHaveRoom = (name: string) => {
+    for (const room of this.rooms.values()) {
+      if (room.roomUsers.find((user) => user.name === name)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   createRoom(name: string) {
+    if (this.checkIsUserHaveRoom(name)) {
+      return;
+    }
     const roomId = randomUUID();
     const roomUsers: Room["roomUsers"] = [{ name, index: 0 }];
     this.rooms.set(roomId, { roomId, roomUsers: roomUsers });
-    this.event("update_room");
+  }
+
+  deleteRoom(roomId: string) {
+    this.rooms.delete(roomId);
   }
 }
 
-const gameDB = new GameDB();
+const roomsDB = new RoomsDB();
 
-export { gameDB, type GameDB };
+export { roomsDB, type RoomsDB };
