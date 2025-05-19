@@ -1,4 +1,4 @@
-import type { Room, Winner } from "./types";
+import type { Room, Winner, Ship } from "./types";
 
 type LoginResponse = {
   type: "reg";
@@ -37,18 +37,7 @@ type UpdateRoom = {
 type StartGame = {
   type: "start_game";
   data: {
-    ships: /* player's ships, not enemy's */
-    [
-      {
-        position: {
-          x: number;
-          y: number;
-        };
-        direction: boolean;
-        length: number;
-        type: "small" | "medium" | "large" | "huge";
-      },
-    ];
+    ships: Ship[] /* player's ships, not enemy's */;
     currentPlayerIndex:
       | number
       | string /* id of the player in the current game session, who have sent his ships */;

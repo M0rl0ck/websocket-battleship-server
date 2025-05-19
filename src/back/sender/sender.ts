@@ -1,7 +1,7 @@
 import type { WebSocket } from "ws";
 import { roomsDB, type RoomsDB } from "../db";
 import { usersDB, type UsersDB } from "../db";
-import type { IResponse, UpdateRoom, UpdateWinners } from "../types";
+import type { IResponse, Ship, UpdateRoom, UpdateWinners } from "../types";
 import { createRaw } from "../utils";
 
 class Sender {
@@ -43,6 +43,29 @@ class Sender {
       data: {
         idGame,
         idPlayer,
+      },
+      id: 0,
+    };
+    this.sendMessage(messageData, ws);
+  };
+
+  startGame = (playerId: string, ships: Ship[], ws: WebSocket) => {
+    const messageData: IResponse = {
+      type: "start_game",
+      data: {
+        ships,
+        currentPlayerIndex: playerId,
+      },
+      id: 0,
+    };
+    this.sendMessage(messageData, ws);
+  };
+
+  turn = (playerId: string, ws: WebSocket) => {
+    const messageData: IResponse = {
+      type: "turn",
+      data: {
+        currentPlayer: playerId,
       },
       id: 0,
     };

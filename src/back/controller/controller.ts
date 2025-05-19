@@ -3,7 +3,7 @@ import type { UsersDB, RoomsDB } from "../db";
 import { usersDB, roomsDB } from "../db";
 import { game, type Game } from "../game";
 import { sender, type Sender } from "../sender";
-import type { LoginRequest, LoginResponse } from "../types";
+import type { LoginRequest, LoginResponse, AddShips } from "../types";
 import type { WebSocket } from "ws";
 
 class Controller extends EventEmitter {
@@ -71,15 +71,53 @@ class Controller extends EventEmitter {
     }
   };
 
-  private createGame = (player1: string, player2: string) => {
-    const idGame = this.game.createGame(player1, player2);
-    const sessionPlayer1 = this.userDB.getSessionByName(player1);
-    const sessionPlayer2 = this.userDB.getSessionByName(player2);
+  private createGame = (name1: string, name2: string) => {
+    const sessionPlayer1 = this.userDB.getSessionByName(name1);
+    const sessionPlayer2 = this.userDB.getSessionByName(name2);
     if (!sessionPlayer1 || !sessionPlayer2) {
       return;
     }
-    this.sender.createGame(idGame, player1, sessionPlayer1);
-    this.sender.createGame(idGame, player2, sessionPlayer2);
+    const player1 = { name: name1, ws: sessionPlayer1 };
+    const player2 = { name: name2, ws: sessionPlayer2 };
+    const gameSession = this.game.createGame(player1, player2);
+    gameSession.players.forEach((player) => {
+      this.sender.createGame(gameSession.idGame, player.idPlayer, player.ws);
+    });
+  };
+
+  addShips = (messageData: AddShips, ws: WebSocket) => {
+    const { gameId, ships, indexPlayer } = messageData.data;
+    const game = this.game.addShips(gameId, indexPlayer, ships, ws);
+    if (
+      game.players.every((player) => player.isReady && player.ships !== null)
+    ) {
+      game.players.forEach((player) => {
+        if (player.ships === null) {
+          throw new Error("ships are null");
+        }
+        this.sender.startGame(player.idPlayer, player.ships, player.ws);
+      });
+      const [{ idPlayer: player1, ws: ws1 }, { idPlayer: player2, ws: ws2 }] =
+        game.players;
+
+      this.turn(player1, player2, ws1, ws2);
+    }
+  };
+
+  private turn = (
+    indexPlayer1: string,
+    indexPlayer2: string,
+    ws1: WebSocket,
+    ws2: WebSocket
+  ) => {
+    let playerId: string;
+    if (Math.random() > 0.5) {
+      playerId = indexPlayer1;
+    } else {
+      playerId = indexPlayer2;
+    }
+    this.sender.turn(playerId, ws1);
+    this.sender.turn(playerId, ws2);
   };
 }
 

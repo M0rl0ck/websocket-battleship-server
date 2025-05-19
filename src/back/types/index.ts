@@ -2,6 +2,7 @@ export type {
   IRequest,
   IRequestData,
   LoginRequest,
+  AddShips,
 } from "./requestMessagesType";
 export type {
   LoginResponse,
@@ -15,4 +16,4 @@ export type {
   IResponse,
 } from "./responseMessagesTypes";
 
-export type { Room, Winner, User } from "./types";
+export type { Room, Winner, User, Ship } from "./types";

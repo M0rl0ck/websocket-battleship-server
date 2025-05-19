@@ -1,3 +1,5 @@
+import { Ship } from "./types";
+
 type LoginRequest = {
   type: "reg";
   data: {
@@ -24,21 +26,9 @@ type AddUserToRoom = {
 type AddShips = {
   type: "add_ships";
   data: {
-    gameId: number | string;
-    ships: [
-      {
-        position: {
-          x: number;
-          y: number;
-        };
-        direction: boolean;
-        length: number;
-        type: "small" | "medium" | "large" | "huge";
-      },
-    ];
-    indexPlayer:
-      | number
-      | string /* id of the player in the current game session */;
+    gameId: string;
+    ships: Ship[];
+    indexPlayer: string /* id of the player in the current game session */;
   };
   id: 0;
 };
@@ -81,4 +71,4 @@ export type IRequest =
   | Attack
   | RandomAttack;
 
-export { IRequestData, LoginRequest };
+export { IRequestData, LoginRequest, AddShips };
