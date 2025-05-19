@@ -48,6 +48,8 @@ class RoomsDB extends EventEmitter {
   addWinner = (name: string) => {
     if (!this.winners.has(name)) {
       this.winners.set(name, { name, wins: 0 });
+    } else {
+      this.winners.set(name, { name, wins: this.winners.get(name)!.wins + 1 });
     }
   };
 

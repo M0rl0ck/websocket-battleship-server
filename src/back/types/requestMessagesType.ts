@@ -33,16 +33,16 @@ type AddShips = {
   id: 0;
 };
 
+type AttackData = {
+  gameId: string;
+  x: number;
+  y: number;
+  indexPlayer: string /* id of the player in the current game session */;
+};
+
 type Attack = {
   type: "attack";
-  data: {
-    gameId: number | string;
-    x: number;
-    y: number;
-    indexPlayer:
-      | number
-      | string /* id of the player in the current game session */;
-  };
+  data: AttackData;
   id: 0;
 };
 
@@ -71,4 +71,4 @@ export type IRequest =
   | Attack
   | RandomAttack;
 
-export { IRequestData, LoginRequest, AddShips };
+export { IRequestData, LoginRequest, AddShips, AttackData };

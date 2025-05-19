@@ -3,6 +3,7 @@ export type {
   IRequestData,
   LoginRequest,
   AddShips,
+  AttackData,
 } from "./requestMessagesType";
 export type {
   LoginResponse,
@@ -14,6 +15,7 @@ export type {
   playerTurn,
   FinishGame,
   IResponse,
+  AttackStatus,
 } from "./responseMessagesTypes";
 
 export type { Room, Winner, User, Ship } from "./types";

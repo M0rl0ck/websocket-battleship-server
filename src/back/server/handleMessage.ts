@@ -33,8 +33,11 @@ const privateHandleMessage = (message: IRequest, ws: WebSocket) => {
       break;
     }
 
-    case "attack":
+    case "attack": {
+      controller.attack(message.data);
       break;
+    }
+
     case "randomAttack":
       break;
     default:

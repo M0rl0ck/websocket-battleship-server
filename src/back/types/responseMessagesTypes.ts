@@ -45,6 +45,7 @@ type StartGame = {
   id: 0;
 };
 
+type AttackStatus = "miss" | "killed" | "shot";
 type AttackFeedback = {
   type: "attack";
   data: {
@@ -52,10 +53,8 @@ type AttackFeedback = {
       x: number;
       y: number;
     };
-    currentPlayer:
-      | number
-      | string /* id of the player in the current game session */;
-    status: "miss" | "killed" | "shot";
+    currentPlayer: string /* id of the player in the current game session */;
+    status: AttackStatus;
   };
   id: 0;
 };
@@ -73,9 +72,7 @@ type playerTurn = {
 type FinishGame = {
   type: "finish";
   data: {
-    winPlayer:
-      | number
-      | string /* id of the player in the current game session */;
+    winPlayer: string /* id of the player in the current game session */;
   };
   id: 0;
 };
@@ -100,4 +97,5 @@ export type {
   playerTurn,
   FinishGame,
   IResponse,
+  AttackStatus,
 };

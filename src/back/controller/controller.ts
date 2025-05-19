@@ -3,7 +3,13 @@ import type { UsersDB, RoomsDB } from "../db";
 import { usersDB, roomsDB } from "../db";
 import { game, type Game } from "../game";
 import { sender, type Sender } from "../sender";
-import type { LoginRequest, LoginResponse, AddShips } from "../types";
+import type {
+  LoginRequest,
+  LoginResponse,
+  AddShips,
+  AttackData,
+  AttackStatus,
+} from "../types";
 import type { WebSocket } from "ws";
 
 class Controller extends EventEmitter {
@@ -97,27 +103,50 @@ class Controller extends EventEmitter {
         }
         this.sender.startGame(player.idPlayer, player.ships, player.ws);
       });
-      const [{ idPlayer: player1, ws: ws1 }, { idPlayer: player2, ws: ws2 }] =
-        game.players;
-
-      this.turn(player1, player2, ws1, ws2);
+      this.turn(gameId);
     }
   };
 
-  private turn = (
-    indexPlayer1: string,
-    indexPlayer2: string,
-    ws1: WebSocket,
-    ws2: WebSocket
-  ) => {
-    let playerId: string;
-    if (Math.random() > 0.5) {
-      playerId = indexPlayer1;
-    } else {
-      playerId = indexPlayer2;
+  private turn = (gameId: string) => {
+    const currentPlayer = this.game.currentPlayer(gameId);
+    const [ws1, ws2] = this.game.getSockets(gameId);
+    this.sender.turn(currentPlayer, ws1);
+    this.sender.turn(currentPlayer, ws2);
+  };
+
+  private sendAttack = (messageData: AttackData, status: AttackStatus) => {
+    const { gameId } = messageData;
+    const [ws1, ws2] = this.game.getSockets(gameId);
+    this.sender.attack(messageData, status, ws1);
+    this.sender.attack(messageData, status, ws2);
+  };
+
+  private sendWin = (messageData: AttackData) => {
+    const { gameId } = messageData;
+    const [ws1, ws2] = this.game.getSockets(gameId);
+    this.sender.sendWin(messageData.indexPlayer, ws1);
+    this.sender.sendWin(messageData.indexPlayer, ws2);
+  };
+
+  attack = (messageData: AttackData) => {
+    const { gameId } = messageData;
+    const cells = this.game.attack(messageData);
+    cells.forEach((cell) => {
+      this.sendAttack({ ...messageData, ...cell.position }, cell.status);
+    });
+    const win = this.game.checkWin(gameId);
+    if (win) {
+      const winner = this.game.getNameById(gameId, messageData.indexPlayer);
+      this.roomsDB.addWinner(winner);
+      this.sender.updateWinners();
+      this.sendWin(messageData);
+      this.game.deleteGame(gameId);
+      return;
     }
-    this.sender.turn(playerId, ws1);
-    this.sender.turn(playerId, ws2);
+    if (cells.length === 1 && cells[0].status === "miss") {
+      this.game.nextPlayer(gameId);
+    }
+    this.turn(gameId);
   };
 }
 
